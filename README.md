@@ -1,6 +1,5 @@
-# chinese-programmer-wrong-pronunciation
 
-中国程序员容易发音错误的单词 [**learn online**](https://lovetingyuan.github.io/chinese-programmer-wrong-pronunciation)
+## 中国程序员容易发音错误的单词 [**learn online**](https://lovetingyuan.github.io/chinese-programmer-wrong-pronunciation)
 
 | 单词  | 正确发音 | 错误发音 |
 | ---- | ------- | ------- |
