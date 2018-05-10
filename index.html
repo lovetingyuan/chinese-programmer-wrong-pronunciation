@@ -16,14 +16,15 @@
       height: 26px;
       float: left;
     }
-    .word {
-      color: black;
+    a {
       text-decoration: none;
     }
-    .word:hover {
+    a:hover {
       text-decoration: underline;
     }
-
+    .word {
+      color: black;
+    }
   </style>
 </head>
 <body>
@@ -44,28 +45,32 @@
   <script id="template" type="text/template">
     <li>
       <a class="word" target="_blank" href="https://translate.google.cn/#en/zh-CN/{{word}}">{{word}}</a>
-      <span title="{{word}}(朗读仅作参考)" style="cursor: pointer" class="js-sound">&nbsp;🔊&nbsp;</span>
+      <a title="{{word}}(朗读仅作参考)" href="javascript:playSound('{{word}}')">&nbsp;🔊&nbsp;</a>
       <span class="soundMark">{{soundMark}}</span>
     </li>
   </script>
   <script>
+    function playSound(word) {
+      var audio = document.getElementById('audio');
+      audio.src = 'https://fanyi.baidu.com/gettts?lan=en&text=' + word;
+      audio.play();
+    }
     (function() {
       var readmeUrl = 'https://api.github.com/repos/shimohq/chinese-programmer-wrong-pronunciation/readme';
-      var request = new XMLHttpRequest();
-      var audio = document.getElementById('audio');
-      var varReg = /\{\{([a-zA-Z]+?)\}\}/g;
-      var compile = function(template, data) {
-        return template.replace(varReg, function(str, key) { return data[key]; });
-      };
-      request.open('GET', readmeUrl, true);
-      request.setRequestHeader('Accept', 'application/vnd.github.VERSION.html')
-      request.send(null);
-      request.addEventListener('load', function() {
+      var handleLoad = function(xhr) {
+        if (xhr.status != 200) {
+          alert('failed to fetch words list');
+          return;
+        }
         var container = document.createElement('div');
-        container.innerHTML = request.responseText;
+        container.innerHTML = xhr.responseText;
         var list = [], item; // [ { word: '',  soundMark: '' } ]
         var htmlStr = '';
         var template = document.getElementById('template').innerHTML;
+        var varReg = /\{\{([a-zA-Z]+?)\}\}/g;
+        var compile = function(data) {
+          return template.replace(varReg, function(str, key) { return data[key]; });
+        };
         var tds = container.getElementsByTagName('td'), i = 0;
         for (; i < tds.length; i=i+3) {
           item = {
@@ -73,20 +78,21 @@
             soundMark: tds[i + 1].childNodes[1].nodeValue.trim()
           };
           list.push(item);
-          htmlStr += compile(template, item);
+          htmlStr += compile(item);
         }
-        var listContainer = document.getElementById('list');
-        listContainer.innerHTML = htmlStr;
-        listContainer.addEventListener('click', function(e) {
-          if (e.target.className === 'js-sound') {
-            audio.src = 'https://fanyi.baidu.com/gettts?lan=en&text=' + e.target.title.split('(')[0];
-            audio.play();
-          }
-        });
+        container = tds = null;
+        document.getElementById('list').innerHTML = htmlStr;
+      };
+      var request = new XMLHttpRequest();
+      request.open('GET', readmeUrl, true);
+      request.setRequestHeader('Accept', 'application/vnd.github.VERSION.html')
+      request.addEventListener('load', function() {
+        handleLoad(request);
       });
       request.addEventListener('error', function() {
         alert('failed to fetch words list');
       });
+      request.send(null);
     })();
   </script>
 </body>
