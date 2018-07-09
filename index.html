@@ -44,8 +44,8 @@
   </div>
   <script id="template" type="text/template">
     <li>
-      <a class="word" target="_blank" href="https://translate.google.cn/#en/zh-CN/{{word}}">{{word}}</a>
-      <a title="{{word}}(朗读仅作参考)" href="javascript:playSound('{{word}}')">&nbsp;🔊&nbsp;</a>
+      <a class="word" target="_blank" title="查看翻译" href="https://translate.google.cn/#en/zh-CN/{{word}}">{{word}}</a>
+      <a title="{{word}} (朗读仅作参考)" href="javascript:playSound('{{word}}')">&nbsp;🔊&nbsp;</a>
       <span class="soundMark">{{soundMark}}</span>
     </li>
   </script>
@@ -75,7 +75,7 @@
         for (; i < tds.length; i=i+3) {
           item = {
             word: tds[i].childNodes[0].nodeValue.trim(),
-            soundMark: tds[i + 1].childNodes[1].nodeValue.trim()
+            soundMark: tds[i + 1].childNodes[1].nodeValue.trim().replace(/\[|\]/g, '/')
           };
           list.push(item);
           htmlStr += compile(item);
