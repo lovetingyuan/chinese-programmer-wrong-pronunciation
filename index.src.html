@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>chinese-programmer-wrong-pronunciation</title>
+  <style>
+    ul {
+      overflow: hidden;
+      list-style: none;
+    }
+    li {
+      padding: 24px;
+      width: 200px;
+      height: 26px;
+      float: left;
+    }
+    a {
+      text-decoration: none;
+      color: black;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2 style="text-align: center; margin: 32px;">
+      <span>中国程序员容易发音错误的单词<span style="font-size: .7em">(请以音标为准)</span></span>
+      <a href="https://github.com/shimohq/chinese-programmer-wrong-pronunciation" target="_blank" title="github repo">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAe1BMVEUAAAAXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRYXFRZfQn0AAAAAKHRSTlMAEPIFFvxjMd2uqvbr0jXh23NfH9bCnplaPMa4jUPQpH55Z2UoDQxog76o6AAAAUdJREFUOMuNUluCgyAMDGJpRbQ+q9bad7vc/4QLibqCfuz8EJLJBJLAH0JxSwKtg+QmQlhjL3d6xk7uvTBrtIeGOekHvcJhITIEegPBMOdTfM0YNZjVr6LAiUWVrULvOFlPC1wo88W6Nl9VgkNrvScbTzHFqrE3IN7M1kV3aqxotDxQXgQQUn8Kn1BQx0J4onFkPoEdMfAEiaeAFQQGJFSoxNYEhrUriLECbABrxIBC2RaB5kOEYItArR2PjQ0Jx9Sr2wa/EVeahE64H+eJpmm0GnHxCRfyt/CJyZKh8wBJ3vgD0Jj0rraL+ko5inc/0bTAjbmXRiLnZ5odItIT4tLe73bape1bR4RuJtzxbrN7YOIx8LkDhPPkOJgiyzFNiz+/u8y0rvPiwR1CVi5yenSxJaFn7nool6Be4OGbZ2oswVWWf+G/+AUSBz+2FOLP3QAAAABJRU5ErkJggg==" style="vertical-align: text-bottom" alt="github logo">
+      </a>
+    </h2>
+    <ul id="list">
+      <h3>加载中...</h3>
+    </ul>
+    <audio id="audio" style="display: none;">
+      Your browser does not support the <code>audio</code> element.
+    </audio>
+  </div>
+  <script id="template" type="text/template">
+    <li>
+      <a class="word" target="_blank" title="查看翻译" href="https://translate.google.cn/#en/zh-CN/{{word}}">{{word}}</a>
+      <a title="{{word}} (朗读仅作参考)" href="javascript:playSound('{{word}}')"> 🔊 </a>
+      <span class="soundMark">{{soundMark}}</span>
+    </li>
+  </script>
+  <script>
+    function playSound(word) {
+      var audio = document.getElementById('audio');
+      audio.src = 'https://fanyi.baidu.com/gettts?lan=en&text=' + word;
+      audio.play();
+    }
+    (function() {
+      var readmeUrl = 'https://api.github.com/repos/shimohq/chinese-programmer-wrong-pronunciation/readme';
+      var handleLoad = function(xhr) {
+        if (xhr.status != 200) {
+          alert('failed to fetch words list');
+          return;
+        }
+        var container = document.createElement('div');
+        container.innerHTML = xhr.responseText;
+        var item;
+        var htmlStr = '';
+        var template = document.getElementById('template').innerHTML;
+        var varReg = /\{\{([a-zA-Z]+?)\}\}/g;
+        var compile = function(data) {
+          return template.replace(varReg, function(str, key) { return data[key]; });
+        };
+        var tds = container.getElementsByTagName('td'), i = 0;
+        for (; i < tds.length; i=i+3) {
+          item = {
+            word: tds[i].childNodes[0].nodeValue.trim(),
+            soundMark: tds[i + 1].childNodes[1].nodeValue.trim().replace(/\[|\]/g, '/')
+          };
+          htmlStr += compile(item);
+        }
+        container = tds = null;
+        document.getElementById('list').innerHTML = htmlStr;
+      };
+      var request = new XMLHttpRequest();
+      request.open('GET', readmeUrl, true);
+      request.setRequestHeader('Accept', 'application/vnd.github.VERSION.html')
+      request.addEventListener('load', function() {
+        handleLoad(request);
+      });
+      request.addEventListener('error', function() {
+        alert('failed to fetch words list');
+      });
+      request.send(null);
+    })();
+  </script>
+</body>
+</html>
